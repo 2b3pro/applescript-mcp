@@ -3,3 +3,5 @@ build/
 *.log
 .env*
 /dist
+.DS_Store
+helps/*
