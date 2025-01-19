@@ -12,6 +12,7 @@ This server provides a standardized interface for AI applications to control sys
 - ⚙️ System controls (volume, dark mode, apps)
 - 📟 iTerm terminal integration
 - 🔄 Shortcuts automation
+- 📝 Notes management (create, read, update, delete, move, show in UI)
 
 ### Planned Features
 
@@ -19,7 +20,6 @@ This server provides a standardized interface for AI applications to control sys
 - 🧭 Safari (open in Safari, save page content, get selected page/tab)
 - 💬 Messages (send, get, list)
 - ✅ Reminders (create, get)
-- 🗒️ Notes (create, get, list)
 
 ## Prerequisites
 
@@ -35,7 +35,18 @@ This server provides a standardized interface for AI applications to control sys
 | `add`   | Create calendar event | `title`, `startDate`, `endDate` |
 | `list`  | List today's events   | None                            |
 
+| Command | Description           | Parameters                      |
+| ------- | --------------------- | ------------------------------- |
+| `add`   | Create calendar event | `title`, `startDate`, `endDate` |
+| `list`  | List today's events   | None                            |
+
 ### Clipboard
+
+| Command           | Description            | Parameters |
+| ----------------- | ---------------------- | ---------- |
+| `set_clipboard`   | Copy to clipboard      | `content`  |
+| `get_clipboard`   | Get clipboard contents | None       |
+| `clear_clipboard` | Clear clipboard        | None       |
 
 | Command           | Description            | Parameters |
 | ----------------- | ---------------------- | ---------- |
@@ -51,6 +62,12 @@ This server provides a standardized interface for AI applications to control sys
 | `search_files`       | Search for files   | `query`, `location` (optional) |
 | `quick_look`         | Preview file       | `path`                         |
 
+| Command              | Description        | Parameters                     |
+| -------------------- | ------------------ | ------------------------------ |
+| `get_selected_files` | Get selected files | None                           |
+| `search_files`       | Search for files   | `query`, `location` (optional) |
+| `quick_look`         | Preview file       | `path`                         |
+
 ### Notifications
 
 | Command                 | Description       | Parameters                             |
@@ -58,7 +75,20 @@ This server provides a standardized interface for AI applications to control sys
 | `send_notification`     | Show notification | `title`, `message`, `sound` (optional) |
 | `toggle_do_not_disturb` | Toggle DND mode   | None                                   |
 
+| Command                 | Description       | Parameters                             |
+| ----------------------- | ----------------- | -------------------------------------- |
+| `send_notification`     | Show notification | `title`, `message`, `sound` (optional) |
+| `toggle_do_not_disturb` | Toggle DND mode   | None                                   |
+
 ### System
+
+| Command             | Description       | Parameters                 |
+| ------------------- | ----------------- | -------------------------- |
+| `volume`            | Set system volume | `level` (0-100)            |
+| `get_frontmost_app` | Get active app    | None                       |
+| `launch_app`        | Open application  | `name`                     |
+| `quit_app`          | Close application | `name`, `force` (optional) |
+| `toggle_dark_mode`  | Toggle dark mode  | None                       |
 
 | Command             | Description       | Parameters                 |
 | ------------------- | ----------------- | -------------------------- |
@@ -80,6 +110,21 @@ This server provides a standardized interface for AI applications to control sys
 | Command        | Description    | Parameters                 |
 | -------------- | -------------- | -------------------------- |
 | `run_shortcut` | Run a shortcut | `name`, `input` (optional) |
+
+### Notes
+
+| Command         | Description                 | Parameters                                     |
+| --------------- | --------------------------- | ---------------------------------------------- |
+| `create`        | Create a new note           | `title`, `content`, `folder` (optional)        |
+| `read`          | Get content of a note       | `title`, `folder` (optional)                   |
+| `update`        | Update an existing note     | `title`, `content`, `folder` (optional)        |
+| `delete`        | Delete a note               | `title`, `folder` (optional)                   |
+| `list`          | List all notes in a folder  | `folder` (optional)                            |
+| `list_folders`  | List all folders            | None                                           |
+| `create_folder` | Create a new folder         | `name`                                         |
+| `delete_folder` | Delete a folder             | `name`                                         |
+| `show`          | Show a note in the UI       | `title`, `folder` (optional)                   |
+| `move`          | Move note to another folder | `title`, `to_folder`, `from_folder` (optional) |
 
 ## Development
 
