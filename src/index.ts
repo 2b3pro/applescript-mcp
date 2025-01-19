@@ -7,6 +7,7 @@ import { notificationsCategory } from "./categories/notifications.js";
 import { itermCategory } from "./categories/iterm.js";
 import { shortcutsCategory } from "./categories/shortcuts.js";
 import { notesCategory } from "./categories/notes.js";
+import { pagesCategory } from "./categories/pages.js";
 
 const server = new AppleScriptFramework({
   name: "applescript-server",
@@ -23,6 +24,7 @@ server.addCategory(notificationsCategory);
 server.addCategory(itermCategory);
 server.addCategory(shortcutsCategory);
 server.addCategory(notesCategory);
+server.addCategory(pagesCategory);
 
 // Start the server
 server.run().catch(console.error);
