@@ -8,6 +8,7 @@ This server provides a standardized interface for AI applications to control sys
 - 🗓️ Calendar management (events, reminders)
 - 📋 Clipboard operations
 - 🔍 Finder integration
+- 📄 Pages document creation
 - 🔔 System notifications
 - ⚙️ System controls (volume, dark mode, apps)
 - 📟 iTerm terminal integration
@@ -110,6 +111,12 @@ This server provides a standardized interface for AI applications to control sys
 | Command        | Description    | Parameters                 |
 | -------------- | -------------- | -------------------------- |
 | `run_shortcut` | Run a shortcut | `name`, `input` (optional) |
+
+### Pages
+
+| Command           | Description                              | Parameters |
+| ----------------- | ---------------------------------------- | ---------- |
+| `create_document` | Create a new Pages document with content | `content`  |
 
 ### Notes
 
