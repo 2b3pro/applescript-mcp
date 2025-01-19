@@ -5,11 +5,9 @@ import { ScriptCategory } from "../types/index.js";
  * * create: Create a new note
  * * read: Get content of a note
  * * update: Update an existing note
- * * delete: Delete a note
  * * list: List all notes in a folder
  * * list_folders: List all folders
  * * create_folder: Create a new folder
- * * delete_folder: Delete a folder
  * * show: Show a note in the UI
  * * move: Move a note to a different folder
  */
@@ -121,39 +119,6 @@ export const notesCategory: ScriptCategory = {
       `,
     },
     {
-      name: "delete",
-      description: "Delete a note in Apple Notes app",
-      schema: {
-        type: "object",
-        properties: {
-          title: {
-            type: "string",
-            description: "Note title",
-          },
-          folder: {
-            type: "string",
-            description: "Folder name (optional)",
-            default: "Notes",
-          },
-        },
-        required: ["title"],
-      },
-      script: (args) => `
-        tell application "Notes"
-          tell account "iCloud"
-            tell folder "${args.folder || "Notes"}"
-              set matchingNotes to (every note whose name = "${args.title}")
-              if length of matchingNotes is 0 then
-                return "Note '${args.title}' not found"
-              end if
-              delete item 1 of matchingNotes
-              return "Note '${args.title}' deleted successfully"
-            end tell
-          end tell
-        end tell
-      `,
-    },
-    {
       name: "list",
       description: "List all notes in a folder in Apple Notes app",
       schema: {
@@ -225,38 +190,6 @@ export const notesCategory: ScriptCategory = {
               return "Folder '${args.name}' created successfully"
             on error errMsg
               return "Failed to create folder: " & errMsg
-            end try
-          end tell
-        end tell
-      `,
-    },
-    {
-      name: "delete_folder",
-      description: "Delete a folder in Apple Notes app",
-      schema: {
-        type: "object",
-        properties: {
-          name: {
-            type: "string",
-            description: "Folder name",
-          },
-        },
-        required: ["name"],
-      },
-      script: (args) => `
-        tell application "Notes"
-          tell account "iCloud"
-            try
-              if not exists folder "${args.name}" then
-                return "Folder '${args.name}' not found"
-              end if
-              if "${args.name}" is in {"Notes"} then
-                return "Cannot delete default folder '${args.name}'"
-              end if
-              delete folder "${args.name}"
-              return "Folder '${args.name}' deleted successfully"
-            on error errMsg
-              return "Failed to delete folder: " & errMsg
             end try
           end tell
         end tell

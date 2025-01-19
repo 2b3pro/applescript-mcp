@@ -11,7 +11,7 @@ This server provides a standardized interface for AI applications to control sys
 - 🔔 System notifications
 - ⚙️ System controls (volume, dark mode, apps)
 - 📟 iTerm terminal integration
-- 📝 Notes management (create, read, update, delete, move, show in UI)
+- 📝 Notes management (create, read, update, move, show in UI)
 
 ### Planned Features
 
@@ -81,11 +81,9 @@ This server provides a standardized interface for AI applications to control sys
 | `create`        | Create a new note           | `title`, `content`, `folder` (optional)        |
 | `read`          | Get content of a note       | `title`, `folder` (optional)                   |
 | `update`        | Update an existing note     | `title`, `content`, `folder` (optional)        |
-| `delete`        | Delete a note               | `title`, `folder` (optional)                   |
 | `list`          | List all notes in a folder  | `folder` (optional)                            |
 | `list_folders`  | List all folders            | None                                           |
 | `create_folder` | Create a new folder         | `name`                                         |
-| `delete_folder` | Delete a folder             | `name`                                         |
 | `show`          | Show a note in the UI       | `title`, `folder` (optional)                   |
 | `move`          | Move note to another folder | `title`, `to_folder`, `from_folder` (optional) |
 
