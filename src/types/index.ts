@@ -12,7 +12,13 @@ export interface ScriptDefinition {
   /**
    * The script content, which can be a string or a function that returns a string.
    */
-  script: string | ((args: any) => string);
+  script: ScriptExecution | ((args: any) => ScriptExecution);
+
+  /**
+   * Optional execution mode for string scripts. Function-based scripts can
+   * return a full ScriptExecution object to override this.
+   */
+  execution?: "applescript" | "shell";
 
   /**
    * Optional schema defining the structure of the script's input parameters.
@@ -27,6 +33,17 @@ export interface ScriptDefinition {
     required?: string[];
   };
 }
+
+export type ScriptExecution =
+  | string
+  | {
+      kind: "applescript" | "shell";
+      script?: string;
+      command?: string;
+      args?: string[];
+      cwd?: string;
+      env?: Record<string, string | undefined>;
+    };
 
 export interface ScriptCategory {
   /**

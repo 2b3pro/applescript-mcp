@@ -1,244 +1,164 @@
-# applescript-mcp MCP Server
+# Mac Power Tools MCP
 
-A Model Context Protocol server that enables LLM applications to interact with macOS through AppleScript.
-This server provides a standardized interface for AI applications to control system functions, manage files, handle notifications, and more.
+`mac-power-tools-mcp` is a macOS-focused MCP server for power-user workflows.
+It started as a fork of a lightweight AppleScript MCP server, but it has since diverged into a broader tool suite that combines AppleScript-backed app automation with shell-backed system, cleanup, and bookmark management tools.
 
-## Features
+## What It Is
 
-- 🗓️ Calendar management (events, reminders)
-- 📋 Clipboard operations
-- 🔍 Finder integration
-- 📄 Pages document creation
-- 🔔 System notifications
-- ⚙️ System controls (volume, dark mode, apps)
-- 📟 iTerm terminal integration
-- 🔄 Shortcuts automation
-- 📝 Notes management (create, read, update, delete, move, show in UI)
+This server is oriented around practical Mac operator tasks:
 
-### Planned Features
+- app and system control
+- Finder, clipboard, notes, calendar, iTerm, and notifications
+- Apple Shortcuts and Keyboard Maestro integration
+- `launchd` inspection and lifecycle management
+- safe cleanup inside `~/Library`
+- bookmark inspection and reorganization for Safari, Brave, and Chrome
 
-- 📬 Mail (list emails, save attachments, summarize, send)
-- 🧭 Safari (open in Safari, save page content, get selected page/tab)
-- 💬 Messages (send, get, list)
-- ✅ Reminders (create, get)
+## Safety Model
 
-## Prerequisites
+Mutation-heavy categories are intentionally constrained:
+
+- `library_*` destructive actions are limited to `~/Library`
+- `library_*` mutations require `confirm=true`
+- `bookmarks_*` mutations require `confirm=true`
+- `bookmarks_*` mutations create timestamped backups before editing bookmark files
+- some `launchd_*` operations may require elevated privileges depending on domain and plist location
+
+This project favors explicit target paths, explicit folder paths, and explicit confirmation over convenience shortcuts.
+
+## Categories
+
+### Core macOS
+
+- `system_*`: app launch/quit, frontmost app, dark mode, volume, battery status
+- `finder_*`: selected files, Spotlight-backed search, Quick Look
+- `clipboard_*`: get, set, clear clipboard
+- `notifications_*`: send notifications, toggle DND shortcut
+- `iterm_*`: run commands and paste clipboard into iTerm
+- `shortcuts_*`: run Apple Shortcuts
+- `calendar_*`: create events and list today's events
+- `notes_*`: folder and note CRUD in Apple Notes
+- `pages_*`: create Pages documents
+
+### Automation
+
+- `automation_list_shortcuts`
+- `automation_run_keyboardmaestro_macro`
+
+### Research
+
+- `research_open_url_in_browser`
+- `research_get_current_timestamp`
+
+### launchd
+
+- `launchd_list_services`
+- `launchd_get_service`
+- `launchd_print_domain`
+- `launchd_kickstart`
+- `launchd_bootstrap`
+- `launchd_bootout`
+- `launchd_validate_plist`
+
+### Library Cleanup
+
+- `library_find_large_app_support_dirs`
+- `library_list_preferences`
+- `library_move_to_trash`
+- `library_reset_app_preferences`
+
+### Bookmarks
+
+- `bookmarks_list_bookmarks`
+- `bookmarks_list_folders`
+- `bookmarks_read_folder`
+- `bookmarks_create_folder`
+- `bookmarks_update_folder`
+- `bookmarks_delete_folder`
+- `bookmarks_move_folder`
+- `bookmarks_read_bookmark`
+- `bookmarks_create_bookmark`
+- `bookmarks_update_bookmark`
+- `bookmarks_delete_bookmark`
+- `bookmarks_move_bookmark`
+- `bookmarks_find_duplicates`
+- `bookmarks_remove_duplicates`
+- `bookmarks_sort_folder`
+
+## Browser Support
+
+Bookmark tooling is strongest for:
+
+- `brave`
+- `safari`
+
+It also supports:
+
+- `chrome`
+
+Chromium-family tools use the profile-aware bookmarks JSON file. Safari tools operate on `~/Library/Safari/Bookmarks.plist`.
+
+## Optional Integrations
+
+- Keyboard Maestro for `automation_run_keyboardmaestro_macro`
+- iTerm for `iterm_*`
+- Pages for `pages_*`
+
+## Example Use Cases
+
+- inspect and restart a user LaunchAgent
+- identify the largest `Application Support` directories before cleanup
+- reset one app’s preference plist safely by moving it to Trash
+- sort a Brave bookmarks folder and remove in-folder duplicates
+- move a Safari bookmark from one folder to another after creating a backup
+- trigger an existing Keyboard Maestro macro from MCP
+
+## Installation
+
+Prerequisites:
 
 - macOS 10.15 or later
 - Node.js 18 or later
 
-## Available Categories
+Install and run:
 
-### Calendar
+```bash
+npm install
+npm run build
+npm start
+```
 
-| Command | Description           | Parameters                      |
-| ------- | --------------------- | ------------------------------- |
-| `add`   | Create calendar event | `title`, `startDate`, `endDate` |
-| `list`  | List today's events   | None                            |
+For local development:
 
-| Command | Description           | Parameters                      |
-| ------- | --------------------- | ------------------------------- |
-| `add`   | Create calendar event | `title`, `startDate`, `endDate` |
-| `list`  | List today's events   | None                            |
-
-### Clipboard
-
-| Command           | Description            | Parameters |
-| ----------------- | ---------------------- | ---------- |
-| `set_clipboard`   | Copy to clipboard      | `content`  |
-| `get_clipboard`   | Get clipboard contents | None       |
-| `clear_clipboard` | Clear clipboard        | None       |
-
-| Command           | Description            | Parameters |
-| ----------------- | ---------------------- | ---------- |
-| `set_clipboard`   | Copy to clipboard      | `content`  |
-| `get_clipboard`   | Get clipboard contents | None       |
-| `clear_clipboard` | Clear clipboard        | None       |
-
-### Finder
-
-| Command              | Description        | Parameters                     |
-| -------------------- | ------------------ | ------------------------------ |
-| `get_selected_files` | Get selected files | None                           |
-| `search_files`       | Search for files   | `query`, `location` (optional) |
-| `quick_look`         | Preview file       | `path`                         |
-
-| Command              | Description        | Parameters                     |
-| -------------------- | ------------------ | ------------------------------ |
-| `get_selected_files` | Get selected files | None                           |
-| `search_files`       | Search for files   | `query`, `location` (optional) |
-| `quick_look`         | Preview file       | `path`                         |
-
-### Notifications
-
-| Command                 | Description       | Parameters                             |
-| ----------------------- | ----------------- | -------------------------------------- |
-| `send_notification`     | Show notification | `title`, `message`, `sound` (optional) |
-| `toggle_do_not_disturb` | Toggle DND mode   | None                                   |
-
-| Command                 | Description       | Parameters                             |
-| ----------------------- | ----------------- | -------------------------------------- |
-| `send_notification`     | Show notification | `title`, `message`, `sound` (optional) |
-| `toggle_do_not_disturb` | Toggle DND mode   | None                                   |
-
-### System
-
-| Command             | Description       | Parameters                 |
-| ------------------- | ----------------- | -------------------------- |
-| `volume`            | Set system volume | `level` (0-100)            |
-| `get_frontmost_app` | Get active app    | None                       |
-| `launch_app`        | Open application  | `name`                     |
-| `quit_app`          | Close application | `name`, `force` (optional) |
-| `toggle_dark_mode`  | Toggle dark mode  | None                       |
-
-| Command             | Description       | Parameters                 |
-| ------------------- | ----------------- | -------------------------- |
-| `volume`            | Set system volume | `level` (0-100)            |
-| `get_frontmost_app` | Get active app    | None                       |
-| `launch_app`        | Open application  | `name`                     |
-| `quit_app`          | Close application | `name`, `force` (optional) |
-| `toggle_dark_mode`  | Toggle dark mode  | None                       |
-
-### iTerm
-
-| Command           | Description     | Parameters                        |
-| ----------------- | --------------- | --------------------------------- |
-| `paste_clipboard` | Paste to iTerm  | None                              |
-| `run`             | Execute command | `command`, `newWindow` (optional) |
-
-### Shortcuts
-
-| Command        | Description    | Parameters                 |
-| -------------- | -------------- | -------------------------- |
-| `run_shortcut` | Run a shortcut | `name`, `input` (optional) |
-
-### Pages
-
-| Command           | Description                              | Parameters |
-| ----------------- | ---------------------------------------- | ---------- |
-| `create_document` | Create a new Pages document with content | `content`  |
-
-### Notes
-
-| Command         | Description                 | Parameters                                     |
-| --------------- | --------------------------- | ---------------------------------------------- |
-| `create`        | Create a new note           | `title`, `content`, `folder` (optional)        |
-| `read`          | Get content of a note       | `title`, `folder` (optional)                   |
-| `update`        | Update an existing note     | `title`, `content`, `folder` (optional)        |
-| `delete`        | Delete a note               | `title`, `folder` (optional)                   |
-| `list`          | List all notes in a folder  | `folder` (optional)                            |
-| `list_folders`  | List all folders            | None                                           |
-| `create_folder` | Create a new folder         | `name`                                         |
-| `delete_folder` | Delete a folder             | `name`                                         |
-| `show`          | Show a note in the UI       | `title`, `folder` (optional)                   |
-| `move`          | Move note to another folder | `title`, `to_folder`, `from_folder` (optional) |
+```bash
+npm run dev
+```
 
 ## Development
 
-### Setup
+The server entrypoint is `src/index.ts`.
+The shared execution framework is `src/framework.ts`.
+Tool categories live under `src/categories/`.
 
-```bash
-# Install dependencies
-npm install
+When adding tools:
 
-# Build the server
-npm run build
+- prefer direct APIs or shell utilities over UI scripting where possible
+- return stable, machine-readable output where possible
+- require explicit confirmation for destructive actions
+- keep environment-specific integrations clearly labeled
 
-# Launch MCP Inspector
-# See: https://modelcontextprotocol.io/docs/tools/inspector
-npx @modelcontextprotocol/inspector node path/to/server/index.js args...
-```
+## Migration From The Fork
 
-### Adding New Functionality
+This repository began as a fork of an AppleScript-centric MCP server. It is no longer just a thin AppleScript wrapper.
 
-#### 1. Create Category File
+Major changes since the fork:
 
-Create `src/categories/newcategory.ts`:
+- rebranded from a generic AppleScript framework into a Mac power-user tool suite
+- added shell-backed categories alongside AppleScript-backed ones
+- expanded into `launchd`, safe Library cleanup, and bookmark management
+- introduced stricter confirmation requirements around destructive operations
+- updated package and server identity for the new direction
 
-```typescript
-import { ScriptCategory } from "../types/index.js";
+## Attribution
 
-export const newCategory: ScriptCategory = {
-  name: "category_name",
-  description: "Category description",
-  scripts: [
-    // Scripts will go here
-  ],
-};
-```
-
-#### 2. Add Scripts
-
-```typescript
-{
-  name: "script_name",
-  description: "What the script does",
-  schema: {
-    type: "object",
-    properties: {
-      paramName: {
-        type: "string",
-        description: "Parameter description"
-      }
-    },
-    required: ["paramName"]
-  },
-  script: (args) => `
-    tell application "App"
-      // AppleScript code using ${args.paramName}
-    end tell
-  `
-}
-```
-
-#### 3. Register Category
-
-Update `src/index.ts`:
-
-```typescript
-import { newCategory } from "./categories/newcategory.js";
-// ...
-server.addCategory(newCategory);
-```
-
-## Debugging
-
-### Using MCP Inspector
-
-The MCP Inspector provides a web interface for testing and debugging your server:
-
-```bash
-npm run inspector
-```
-
-### Logging
-
-Enable debug logging by setting the environment variable:
-
-```bash
-DEBUG=applescript-mcp* npm start
-```
-
-### Common Issues
-
-- **Permission Errors**: Check System Preferences > Security & Privacy
-- **Script Failures**: Test scripts directly in Script Editor.app
-- **Communication Issues**: Check stdio streams aren't being redirected
-
-## Resources
-
-- [AppleScript Language Guide](https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html)
-- [MCP Protocol Documentation](https://modelcontextprotocol.io)
-- [Issue Tracker](https://github.com/joshrutkowski/applescript-mcp/issues)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details
+This project began as a fork of the original AppleScript MCP repository and has since diverged substantially in scope and product direction.

@@ -8,10 +8,15 @@ import { itermCategory } from "./categories/iterm.js";
 import { shortcutsCategory } from "./categories/shortcuts.js";
 import { notesCategory } from "./categories/notes.js";
 import { pagesCategory } from "./categories/pages.js";
+import { automationCategory } from "./categories/automation.js";
+import { researchCategory } from "./categories/research.js";
+import { launchdCategory } from "./categories/launchd.js";
+import { libraryCategory } from "./categories/library.js";
+import { bookmarksCategory } from "./categories/bookmarks.js";
 
 const server = new AppleScriptFramework({
-  name: "applescript-server",
-  version: "1.3.0",
+  name: "mac-power-tools",
+  version: "2.0.0",
   debug: true,
 });
 
@@ -25,6 +30,11 @@ server.addCategory(itermCategory);
 server.addCategory(shortcutsCategory);
 server.addCategory(notesCategory);
 server.addCategory(pagesCategory);
+server.addCategory(automationCategory);
+server.addCategory(researchCategory);
+server.addCategory(launchdCategory);
+server.addCategory(libraryCategory);
+server.addCategory(bookmarksCategory);
 
 // Start the server
 server.run().catch(console.error);

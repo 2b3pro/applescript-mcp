@@ -1,4 +1,5 @@
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * Pages-related scripts.
@@ -27,7 +28,7 @@ export const pagesCategory: ScriptCategory = {
             -- Create new document
             set newDoc to make new document
             
-            set the body text of newDoc to "${args.content.replace(/"/g, '\\"')}"
+            set the body text of newDoc to "${escapeAppleScriptString(args.content)}"
             activate
             return "Document created successfully with plain text content"
           end tell

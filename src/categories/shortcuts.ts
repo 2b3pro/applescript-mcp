@@ -1,4 +1,5 @@
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * Shortcuts-related scripts.
@@ -29,11 +30,11 @@ export const shortcutsCategory: ScriptCategory = {
         try
           tell application "Shortcuts Events"
             ${args.input ? 
-              `run shortcut "${args.name}" with input "${args.input}"` :
-              `run shortcut "${args.name}"`
+              `run shortcut "${escapeAppleScriptString(args.name)}" with input "${escapeAppleScriptString(args.input)}"` :
+              `run shortcut "${escapeAppleScriptString(args.name)}"`
             }
           end tell
-          return "Shortcut '${args.name}' executed successfully"
+          return "Shortcut '${escapeAppleScriptString(args.name)}' executed successfully"
         on error errMsg
           return "Failed to run shortcut: " & errMsg
         end try

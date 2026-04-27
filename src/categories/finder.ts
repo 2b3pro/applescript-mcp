@@ -1,5 +1,6 @@
 // src/categories/finder.ts
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * Finder-related scripts.
@@ -53,25 +54,22 @@ export const finderCategory: ScriptCategory = {
         },
         required: ["query"],
       },
-      script: (args) => `
-        set searchPath to "/Users/joshrutkowski/Downloads"
-        tell application "Finder"
-          try
-            set theFolder to POSIX file searchPath as alias
-            set theFiles to every file of folder theFolder whose name contains "${args.query}"
-            set resultList to ""
-            repeat with aFile in theFiles
-              set resultList to resultList & (POSIX path of (aFile as alias)) & return
-            end repeat
-            if resultList is "" then
-              return "No files found matching '${args.query}'"
-            end if
-            return resultList
-          on error errMsg
-            return "Failed to search files: " & errMsg
-          end try
-        end tell
-      `,
+      script: (args) => ({
+        kind: "shell",
+        command: "/bin/sh",
+        args: [
+          "-lc",
+          `
+            set -eu
+            search_path="${SEARCH_PATH:-$HOME}"
+            mdfind -onlyin "$search_path" "$SEARCH_QUERY"
+          `,
+        ],
+        env: {
+          SEARCH_PATH: typeof args.location === "string" ? args.location : "",
+          SEARCH_QUERY: String(args.query),
+        },
+      }),
     },
     {
       name: "quick_look_file",
@@ -88,7 +86,7 @@ export const finderCategory: ScriptCategory = {
       },
       script: (args) => `
         try
-          set filePath to POSIX file "${args.path}"
+          set filePath to POSIX file "${escapeAppleScriptString(args.path)}"
           tell application "Finder"
             activate
             select filePath

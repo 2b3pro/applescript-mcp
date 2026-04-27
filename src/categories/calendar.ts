@@ -1,4 +1,5 @@
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * Calendar-related scripts.
@@ -38,17 +39,24 @@ export const calendarCategory: ScriptCategory = {
       script: (args) => `
         tell application "Calendar"
           set theStartDate to current date
-          set hours of theStartDate to ${args.startDate.slice(11, 13)}
-          set minutes of theStartDate to ${args.startDate.slice(14, 16)}
-          set seconds of theStartDate to ${args.startDate.slice(17, 19)}
+          set year of theStartDate to ${args.startDate.slice(0, 4)}
+          set month of theStartDate to ${Number(args.startDate.slice(5, 7))}
+          set day of theStartDate to ${Number(args.startDate.slice(8, 10))}
+          set hours of theStartDate to ${Number(args.startDate.slice(11, 13))}
+          set minutes of theStartDate to ${Number(args.startDate.slice(14, 16))}
+          set seconds of theStartDate to ${Number(args.startDate.slice(17, 19))}
 
-          set theEndDate to theStartDate + (1 * hours)
-          set hours of theEndDate to ${args.endDate.slice(11, 13)}
-          set minutes of theEndDate to ${args.endDate.slice(14, 16)}
-          set seconds of theEndDate to ${args.endDate.slice(17, 19)}
+          set theEndDate to current date
+          set year of theEndDate to ${args.endDate.slice(0, 4)}
+          set month of theEndDate to ${Number(args.endDate.slice(5, 7))}
+          set day of theEndDate to ${Number(args.endDate.slice(8, 10))}
+          set hours of theEndDate to ${Number(args.endDate.slice(11, 13))}
+          set minutes of theEndDate to ${Number(args.endDate.slice(14, 16))}
+          set seconds of theEndDate to ${Number(args.endDate.slice(17, 19))}
 
-          tell calendar "${args.calendar || "Calendar"}"
-            make new event with properties {summary:"${args.title}", start date:theStartDate, end date:theEndDate}
+          tell calendar "${escapeAppleScriptString(args.calendar || "Calendar")}"
+            make new event with properties {summary:"${escapeAppleScriptString(args.title)}", start date:theStartDate, end date:theEndDate}
+            return "Event '${escapeAppleScriptString(args.title)}' created successfully"
           end tell
         end tell
       `,

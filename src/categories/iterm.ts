@@ -1,4 +1,5 @@
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * iTerm-related scripts.
@@ -13,8 +14,6 @@ export const itermCategory: ScriptCategory = {
       name: "paste_clipboard",
       description: "Paste clipboard content into iTerm",
       script: `
-        tell application "System Events" to keystroke "c" using {command down}
-        delay 0.1
         tell application "iTerm"
           set w to current window
           tell w's current session to write text (the clipboard)
@@ -53,7 +52,7 @@ export const itermCategory: ScriptCategory = {
             tell w's current session
           `
           }
-            write text "${args.command}"
+            write text "${escapeAppleScriptString(args.command)}"
             activate
           end tell
         end tell
