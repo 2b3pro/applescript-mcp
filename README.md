@@ -37,7 +37,7 @@ This project favors explicit target paths, explicit folder paths, and explicit c
 - `iterm_*`: run commands and paste clipboard into iTerm
 - `shortcuts_*`: run Apple Shortcuts
 - `calendar_*`: create events and list today's events
-- `notes_*`: folder and note CRUD in Apple Notes
+- `notes_*`: folder and note CRUD in Apple Notes, folder-view reads, and tag lookup with folder/Smart Folder fallback plus plaintext search
 - `pages_*`: create Pages documents
 
 ### Automation
@@ -119,6 +119,67 @@ Prerequisites:
 
 - macOS 10.15 or later
 - Node.js 18 or later
+
+## MCP Server Config
+
+Example `mcpServers` entry:
+
+```json
+{
+  "mcpServers": {
+    "mac-power-tools": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/mac-mcp/dist/index.js"
+      ],
+      "env": {
+        "CATEGORIES": "all"
+      }
+    }
+  }
+}
+```
+
+Category selection is controlled by `CATEGORIES`:
+
+- unset: enable every category
+- `all`: enable every category
+- comma-separated list: enable only those categories
+
+Available category names:
+
+- `system`
+- `calendar`
+- `finder`
+- `clipboard`
+- `notifications`
+- `iterm`
+- `shortcuts`
+- `notes`
+- `pages`
+- `automation`
+- `research`
+- `launchd`
+- `library`
+- `bookmarks`
+
+Example selective config:
+
+```json
+{
+  "mcpServers": {
+    "mac-power-tools": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/mac-mcp/dist/index.js"
+      ],
+      "env": {
+        "CATEGORIES": "system,finder,launchd,library,bookmarks"
+      }
+    }
+  }
+}
+```
 
 Install and run:
 

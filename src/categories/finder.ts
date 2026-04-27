@@ -61,7 +61,7 @@ export const finderCategory: ScriptCategory = {
           "-lc",
           `
             set -eu
-            search_path="${SEARCH_PATH:-$HOME}"
+            search_path="\${SEARCH_PATH:-$HOME}"
             mdfind -onlyin "$search_path" "$SEARCH_QUERY"
           `,
         ],

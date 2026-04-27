@@ -25,7 +25,7 @@ export const libraryCategory: ScriptCategory = {
           "-lc",
           `
             set -eu
-            limit="${LIMIT:-25}"
+            limit="\${LIMIT:-25}"
             base="$HOME/Library/Application Support"
             if [ ! -d "$base" ]; then
               echo "Application Support directory not found: $base"
@@ -68,8 +68,8 @@ export const libraryCategory: ScriptCategory = {
               exit 1
             fi
             find "$base" -maxdepth 1 -type f -name '*.plist' | sort | {
-              if [ -n "${FILTER_TEXT:-}" ]; then
-                grep -i -- "${FILTER_TEXT}" || true
+              if [ -n "\${FILTER_TEXT:-}" ]; then
+                grep -i -- "\${FILTER_TEXT}" || true
               else
                 cat
               fi
@@ -108,7 +108,7 @@ export const libraryCategory: ScriptCategory = {
           "-lc",
           `
             set -eu
-            if [ "${CONFIRM_MOVE:-false}" != "true" ]; then
+            if [ "\${CONFIRM_MOVE:-false}" != "true" ]; then
               echo "Refusing to move path to Trash without confirm=true."
               exit 1
             fi
@@ -131,7 +131,7 @@ export const libraryCategory: ScriptCategory = {
             base_name="$(basename "$target")"
             dest="$trash_dir/$base_name"
             if [ -e "$dest" ]; then
-              dest="$trash_dir/${base_name}.$(date +%Y%m%d-%H%M%S)"
+              dest="$trash_dir/\${base_name}.$(date +%Y%m%d-%H%M%S)"
             fi
 
             mv "$target" "$dest"
@@ -170,7 +170,7 @@ export const libraryCategory: ScriptCategory = {
           "-lc",
           `
             set -eu
-            if [ "${CONFIRM_RESET:-false}" != "true" ]; then
+            if [ "\${CONFIRM_RESET:-false}" != "true" ]; then
               echo "Refusing to reset preferences without confirm=true."
               exit 1
             fi
@@ -185,7 +185,7 @@ export const libraryCategory: ScriptCategory = {
             base_name="$(basename "$plist")"
             dest="$trash_dir/$base_name"
             if [ -e "$dest" ]; then
-              dest="$trash_dir/${base_name}.$(date +%Y%m%d-%H%M%S)"
+              dest="$trash_dir/\${base_name}.$(date +%Y%m%d-%H%M%S)"
             fi
 
             mv "$plist" "$dest"

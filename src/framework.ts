@@ -73,7 +73,7 @@ export class AppleScriptFramework {
         .split(/\r?\n/)
         .flatMap((line) => ["-e", line]);
       const { stdout } = await execFileAsync("osascript", args);
-      return stdout.trim();
+      return String(stdout).trim();
     } catch (error) {
       // Properly type check the error object
       let errorMessage = "Unknown error occurred";
@@ -106,7 +106,7 @@ export class AppleScriptFramework {
         maxBuffer: 10 * 1024 * 1024,
       });
 
-      return stdout.trim() || stderr.trim();
+      return String(stdout).trim() || String(stderr).trim();
     } catch (error) {
       let errorMessage = "Unknown error occurred";
       if (error && typeof error === "object") {

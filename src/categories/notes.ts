@@ -1,4 +1,5 @@
 import { ScriptCategory } from "../types/index.js";
+import { escapeAppleScriptString } from "../utils/applescript.js";
 
 /**
  * Notes-related scripts.
@@ -12,6 +13,8 @@ import { ScriptCategory } from "../types/index.js";
  * * delete_folder: Delete a folder
  * * show: Show a note in the UI
  * * move: Move a note to a different folder
+ * * read_folder: Read notes from a folder or Smart Folder by name
+ * * find_by_tag: Find notes whose body contains a #tag marker
  */
 export const notesCategory: ScriptCategory = {
   name: "notes",
@@ -296,6 +299,135 @@ export const notesCategory: ScriptCategory = {
           end tell
         end tell
       `,
+    },
+    {
+      name: "read_folder",
+      description:
+        "List notes in a folder view by name. This can also work for Smart Folders if Notes resolves them as folders.",
+      schema: {
+        type: "object",
+        properties: {
+          folder: {
+            type: "string",
+            description: "Folder or Smart Folder name",
+          },
+        },
+        required: ["folder"],
+      },
+      script: (args) => {
+        const escapedFolder = escapeAppleScriptString(args.folder);
+        return `
+          tell application "Notes"
+            tell account "iCloud"
+              try
+                tell folder "${escapedFolder}"
+                  set noteList to ""
+                  repeat with theNote in notes
+                    set noteList to noteList & name of theNote & linefeed
+                  end repeat
+                  if noteList is "" then
+                    return "No notes found in folder '${escapedFolder}'"
+                  end if
+                  return noteList
+                end tell
+              on error errMsg
+                return "Failed to read folder: " & errMsg
+              end try
+            end tell
+          end tell
+        `;
+      },
+    },
+    {
+      name: "find_by_tag",
+      description:
+        "Find notes for a tag by first checking a matching folder or Smart Folder name, then falling back to plaintext #tag search",
+      schema: {
+        type: "object",
+        properties: {
+          tag: {
+            type: "string",
+            description: "Tag name, with or without the leading #",
+          },
+          folder: {
+            type: "string",
+            description: "Optional folder name to restrict the search",
+          },
+        },
+        required: ["tag"],
+      },
+      script: (args) => {
+        const rawTag = String(args.tag || "").trim();
+        const normalizedTag = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
+        const escapedTag = escapeAppleScriptString(normalizedTag);
+        const folderCandidate = rawTag.replace(/^#/, "").trim();
+        const escapedFolderCandidate = escapeAppleScriptString(folderCandidate);
+
+        if (typeof args.folder === "string" && args.folder.trim().length > 0) {
+          const escapedFolder = escapeAppleScriptString(args.folder.trim());
+          return `
+            tell application "Notes"
+              tell account "iCloud"
+                try
+                  tell folder "${escapedFolder}"
+                    set matchingNotes to every note whose plaintext contains "${escapedTag}"
+                    if length of matchingNotes is 0 then
+                      return "No notes found with tag '${escapedTag}' in folder '${escapedFolder}'"
+                    end if
+
+                    set noteList to ""
+                    repeat with theNote in matchingNotes
+                      set noteList to noteList & name of theNote & linefeed
+                    end repeat
+                    return noteList
+                  end tell
+                on error errMsg
+                  return "Failed to search notes by tag: " & errMsg
+                end try
+              end tell
+            end tell
+          `;
+        }
+
+        return `
+          tell application "Notes"
+            tell account "iCloud"
+              try
+                if "${escapedFolderCandidate}" is not "" then
+                  try
+                    tell folder "${escapedFolderCandidate}"
+                      set folderNoteList to ""
+                      repeat with theNote in notes
+                        set folderNoteList to folderNoteList & name of theNote & linefeed
+                      end repeat
+                      if folderNoteList is not "" then
+                        return folderNoteList
+                      end if
+                    end tell
+                  end try
+                end if
+
+                set noteList to ""
+                repeat with theFolder in folders
+                  repeat with theNote in notes of theFolder
+                    if plaintext of theNote contains "${escapedTag}" then
+                      set noteList to noteList & name of theNote & " (" & name of theFolder & ")" & linefeed
+                    end if
+                  end repeat
+                end repeat
+
+                if noteList is "" then
+                  return "No notes found with tag '${escapedTag}'"
+                end if
+
+                return noteList
+              on error errMsg
+                return "Failed to search notes by tag: " & errMsg
+              end try
+            end tell
+          end tell
+        `;
+      },
     },
     {
       name: "move",

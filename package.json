@@ -1,6 +1,6 @@
 {
   "name": "mac-power-tools-mcp",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Mac power-user MCP suite for automation, cleanup, bookmarks, and system operations",
   "main": "dist/index.js",
   "type": "module",

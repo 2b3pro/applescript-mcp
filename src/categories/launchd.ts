@@ -25,8 +25,8 @@ export const launchdCategory: ScriptCategory = {
           `
             set -eu
             launchctl list | {
-              if [ -n "${FILTER_TEXT:-}" ]; then
-                grep -i -- "${FILTER_TEXT}" || true
+              if [ -n "\${FILTER_TEXT:-}" ]; then
+                grep -i -- "\${FILTER_TEXT}" || true
               else
                 cat
               fi
@@ -172,11 +172,11 @@ export const launchdCategory: ScriptCategory = {
           "-lc",
           `
             set -eu
-            if [ -n "${SERVICE_LABEL:-}" ]; then
+            if [ -n "\${SERVICE_LABEL:-}" ]; then
               exec launchctl bootout "$SERVICE_DOMAIN/$SERVICE_LABEL"
             fi
 
-            if [ -n "${PLIST_PATH:-}" ]; then
+            if [ -n "\${PLIST_PATH:-}" ]; then
               exec launchctl bootout "$SERVICE_DOMAIN" "$PLIST_PATH"
             fi
 

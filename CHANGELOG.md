@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1 - 2026-04-27
+
+- Added `CATEGORIES` env filtering so MCP clients can enable only selected tool groups
+- Documented `mcpServers` configuration and category selection in the README
+- Added `notes_read_folder` and updated `notes_find_by_tag` to prefer matching Notes folder or Smart Folder views before plaintext tag search
+- Fixed TypeScript template literal breakage caused by unescaped shell parameter expansions
+- Hardened command output handling in the framework by normalizing `execFile` output to strings
+
 ## 2.0.0 - 2026-04-27
 
 - Rebranded the project as `mac-power-tools-mcp`
